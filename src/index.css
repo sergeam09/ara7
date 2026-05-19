@@ -1,0 +1,27 @@
+:root {
+  --bg:     #eeece8;
+  --accent: #e8574a;
+  --t2:     #2a2826;
+  --t3:     #8a8680;
+  --sh-card:  6px 6px 14px rgba(180,176,168,0.7), -4px -4px 10px rgba(255,254,252,0.9);
+  --sh-out:   3px 3px 7px rgba(180,176,168,0.6), -2px -2px 5px rgba(255,254,252,0.8);
+  --sh-in:    inset 3px 3px 7px rgba(180,176,168,0.5), inset -2px -2px 5px rgba(255,254,252,0.8);
+  --sh-press: inset 2px 2px 5px rgba(180,176,168,0.6), inset -1px -1px 3px rgba(255,254,252,0.7);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--t2);
+  font-family: system-ui, -apple-system, sans-serif;
+  overflow: hidden;
+  user-select: none;
+  -webkit-app-region: no-drag;
+}
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(190,186,178,0.4); border-radius: 2px; }
+
+input, button, select, textarea { font-family: inherit; }
