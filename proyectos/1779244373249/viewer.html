@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>exe23</title>
+<script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:100%;height:100dvh;font-family:system-ui,sans-serif;overflow:hidden;background:#eeece8}
+.a-loader,.a-loader-title,.a-loader-border,.a-enter-vr-button,.a-enter-ar-button,.mindar-ui-loading,.mindar-ui-scanning,.mindar-ui-error,.a-orientation-modal{display:none!important}
+#splash{display:flex;align-items:center;justify-content:center;width:100%;height:100%;background:#eeece8;flex-direction:column;gap:40px;position:fixed;top:0;left:0;z-index:1000}
+#splash-bar{width:120px;height:1.5px;background:rgba(42,40,38,0.08);border-radius:1px;overflow:hidden}
+#splash-fill{height:100%;background:#e8574a;width:0;animation:prog 3s ease-in-out forwards}
+@keyframes prog{to{width:100%}}
+#instruction{display:none;width:100%;height:100%;background:#eeece8;flex-direction:column;position:fixed;top:0;left:0;z-index:999}
+#instruction.visible{display:flex}
+#instruction-header{height:48px;background:#eeece8;display:flex;align-items:center;justify-content:space-between;padding:0 20px;border-bottom:1px solid rgba(184,180,174,0.2)}
+#instruction-header svg{width:80px;height:auto}
+#instruction-mode{font-size:9px;color:#b8b4ae}
+#instruction-content{flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:30px;padding:40px 30px}
+#scan-frame{width:160px;height:160px;position:relative;animation:pulse 1.5s ease-in-out infinite}
+.corner{position:absolute;width:20px;height:20px;border:2px solid #e8574a;border-radius:4px}
+.corner.tl{top:0;left:0;border-right:none;border-bottom:none}
+.corner.tr{top:0;right:0;border-left:none;border-bottom:none}
+.corner.bl{bottom:0;left:0;border-right:none;border-top:none}
+.corner.br{bottom:0;right:0;border-left:none;border-top:none}
+#scan-line{position:absolute;top:0;left:0;width:100%;height:2px;background:#e8574a;animation:scan 2s ease-in-out infinite}
+@keyframes scan{0%{top:0}50%{top:158px}100%{top:0}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+#instruction-text{text-align:center}
+#instruction-title{font-size:22px;font-weight:700;color:#2a2826;margin-bottom:10px;line-height:1.2}
+#instruction-subtitle{font-size:16px;color:#2a2826;max-width:260px;line-height:1.55}
+#start-ar-btn{background:#e8574a;color:#fff;border:none;border-radius:14px;padding:16px 0;font-size:16px;font-weight:700;font-family:system-ui,sans-serif;cursor:pointer;width:100%;box-shadow:0 4px 16px rgba(200,80,55,0.35);letter-spacing:0.3px}
+#ar-container{display:none;width:100%;height:100%;position:fixed;top:0;left:0;z-index:1}
+#share-btn{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);z-index:9999;display:none;background:#e8574a;color:#fff;border:none;border-radius:12px;padding:12px 28px;font-size:14px;font-weight:700;font-family:system-ui,sans-serif;cursor:pointer;box-shadow:3px 3px 8px rgba(200,80,55,0.4)}
+#share-btn.visible{display:block}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div id="splash">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 925 275" style="width:110px;height:auto">
+<polygon points="300.11 224.54 325.11 224.54 325.11 174.54 450.11 174.54 450.11 224.54 475.11 224.54 475.11 149.54 300.11 149.54 300.11 224.54" fill="#2a2826"/>
+<path d="M700.11,49.54v75h175V49.54h-175ZM850.11,99.54h-125v-25h125v25Z" fill="#2a2826"/>
+<polygon points="700.11 224.54 725.11 224.54 725.11 174.54 850.11 174.54 850.11 224.54 875.11 224.54 875.11 149.54 700.11 149.54 700.11 224.54" fill="#2a2826"/>
+<path d="M300.11,124.54h175V49.54h-175v75ZM325.11,74.54h125v25h-125v-25Z" fill="#2a2826"/>
+<polygon points="500.11 224.54 525.11 224.54 525.11 74.54 650.11 74.54 650.11 99.54 550.11 99.54 550.11 174.54 650.11 174.54 650.11 224.54 675.11 224.54 675.11 149.54 575.11 149.54 575.11 124.54 675.11 124.54 675.11 49.54 500.11 49.54 500.11 224.54" fill="#2a2826"/>
+<path d="M49.26,224.52h175V49.52H49.26v175ZM74.26,74.52h125v125h-125v-125Z" fill="#2a2826"/>
+<path d="M99.26,174.52h75v-75h-75v75ZM124.26,124.52h25v25h-25v-25Z" fill="#2a2826"/>
+</svg>
+<div style="font-size:10px;color:#b8b4ae;letter-spacing:2px;text-transform:uppercase">Realidad Aumentada</div>
+<div id="splash-bar"><div id="splash-fill"></div></div>
+</div>
+<div id="instruction">
+<div id="instruction-header">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 925 275">
+<polygon points="300.11 224.54 325.11 224.54 325.11 174.54 450.11 174.54 450.11 224.54 475.11 224.54 475.11 149.54 300.11 149.54 300.11 224.54" fill="#2a2826"/>
+<path d="M700.11,49.54v75h175V49.54h-175ZM850.11,99.54h-125v-25h125v25Z" fill="#2a2826"/>
+<polygon points="700.11 224.54 725.11 224.54 725.11 174.54 850.11 174.54 850.11 224.54 875.11 224.54 875.11 149.54 700.11 149.54 700.11 224.54" fill="#2a2826"/>
+<path d="M300.11,124.54h175V49.54h-175v75ZM325.11,74.54h125v25h-125v-25Z" fill="#2a2826"/>
+<polygon points="500.11 224.54 525.11 224.54 525.11 74.54 650.11 74.54 650.11 99.54 550.11 99.54 550.11 174.54 650.11 174.54 650.11 224.54 675.11 224.54 675.11 149.54 575.11 149.54 575.11 124.54 675.11 124.54 675.11 49.54 500.11 49.54 500.11 224.54" fill="#2a2826"/>
+<path d="M49.26,224.52h175V49.52H49.26v175ZM74.26,74.52h125v125h-125v-125Z" fill="#2a2826"/>
+<path d="M99.26,174.52h75v-75h-75v75ZM124.26,124.52h25v25h-25v-25Z" fill="#2a2826"/>
+</svg>
+<span id="instruction-mode">Image AR</span>
+</div>
+<div id="instruction-content">
+<div id="scan-frame">
+<div class="corner tl"></div><div class="corner tr"></div>
+<div class="corner bl"></div><div class="corner br"></div>
+<div id="scan-line"></div>
+</div>
+<div id="instruction-text">
+<div id="instruction-title">Apunta a el target o imagen de muestra</div>
+<div id="instruction-subtitle">Enfoca tu cámara hacia la imagen para iniciar la experiencia</div>
+</div>
+<div style="width:100%;text-align:center">
+<button id="start-ar-btn">Iniciar AR</button>
+<div style="font-size:14px;color:#e8574a;margin-top:16px;text-align:center;line-height:1.5;font-weight:500">Importante:<br>Debes otorgar permiso<br>de uso de cámara.</div>
+</div>
+</div>
+</div>
+<div id="ar-container"></div>
+<button id="share-btn">COMPARTIR</button>
+<script>
+(function(){
+const CONFIG_URL = './config.json'
+let scene, arStarted = false
+
+setTimeout(() => {
+  document.getElementById('splash').style.display = 'none'
+  document.getElementById('instruction').classList.add('visible')
+  loadConfig()
+}, 3000)
+
+async function loadConfig() {
+  try {
+    const cfg = await fetch(CONFIG_URL).then(r => r.json())
+    window.__ara7config = cfg
+  } catch(e) { console.warn('Config no disponible (preview local)') }
+}
+
+document.getElementById('start-ar-btn').addEventListener('click', async () => {
+  const btn = document.getElementById('start-ar-btn')
+  btn.disabled = true; btn.textContent = 'Iniciando…'
+  const cfg = window.__ara7config
+  if (!cfg) { btn.disabled=false; btn.textContent='Iniciar AR'; alert('Sin configuración'); return }
+
+  const mindSrc  = './assets/' + (cfg.image?.mind || 'targets.mind')
+  const capas    = cfg.image?.capas || []
+
+  document.getElementById('instruction').classList.remove('visible')
+  const container = document.getElementById('ar-container')
+  container.style.display = 'block'
+
+  scene = document.createElement('a-scene')
+  scene.id = 'ar-scene'
+  scene.setAttribute('mindar-image', `imageTargetSrc:${mindSrc};autoStart:false;uiLoading:no;uiError:no;uiScanning:no`)
+  scene.setAttribute('embedded','')
+  scene.setAttribute('color-space','sRGB')
+  scene.setAttribute('renderer','colorManagement:true')
+  scene.setAttribute('vr-mode-ui','enabled:false')
+  scene.setAttribute('device-orientation-permission-ui','enabled:false')
+  scene.style.cssText='width:100%;height:100%'
+
+  scene.appendChild(Object.assign(document.createElement('a-camera'),{id:'camera'}))
+  const assets = document.createElement('a-assets')
+  scene.appendChild(assets)
+
+  const target = document.createElement('a-entity')
+  target.setAttribute('mindar-image-target','targetIndex:0')
+
+  capas.forEach(capa => {
+    if(!capa.archivo) return
+    const assetSrc = './assets/' + capa.archivo
+    let el
+    if(capa.tipo==='image'||capa.tipo==='gif'||capa.tipo==='svg'){
+      el = document.createElement('a-image')
+      el.setAttribute('src',assetSrc)
+      el.setAttribute('width', (capa.anchoReal||60)/100)
+      el.setAttribute('height',(capa.altoReal||40)/100)
+    } else if(capa.tipo==='video'||capa.tipo==='webm'){
+      const vid = document.createElement('video')
+      vid.id='vid'+capa.id; vid.src=assetSrc; vid.loop=capa.loop!==false; vid.muted=true; vid.playsInline=true
+      assets.appendChild(vid)
+      el = document.createElement('a-video')
+      el.setAttribute('src','#vid'+capa.id)
+      el.setAttribute('width', (capa.anchoReal||60)/100)
+      el.setAttribute('height',(capa.altoReal||40)/100)
+    } else if(capa.tipo==='glb'){
+      el = document.createElement('a-gltf-model')
+      el.setAttribute('src',assetSrc)
+    } else { return }
+    const px=((capa.posX||0)/100).toFixed(3)
+    const py=((capa.posY||0)/100).toFixed(3)
+    const pz=((capa.posZ||0)/100).toFixed(3)
+    el.setAttribute('position',`${px} ${py} ${pz}`)
+    el.setAttribute('rotation',`${capa.rotX||0} ${capa.rotY||0} ${capa.rotZ||0}`)
+    const sc=capa.escala||1; el.setAttribute('scale',`${sc} ${sc} ${sc}`)
+    if(capa.opacidad!==undefined) el.setAttribute('opacity',capa.opacidad)
+    target.appendChild(el)
+  })
+
+  scene.appendChild(target)
+  container.appendChild(scene)
+
+  scene.addEventListener('loaded', () => {
+    const sys = scene.systems['mindar-image-system']
+    if(sys){ sys.start(); arStarted=true }
+  })
+  target.addEventListener('mindar-image-target-found', () => {
+    capas.filter(c=>c.tipo==='video'||c.tipo==='webm').forEach(c=>{
+      const v=document.getElementById('vid'+c.id); if(v) v.play().catch(()=>{})
+    })
+  })
+  document.getElementById('share-btn').classList.add('visible')
+})
+
+document.getElementById('share-btn').addEventListener('click', () => {
+  const btn = document.getElementById('share-btn')
+  navigator.clipboard.writeText(location.href).then(() => {
+    const t=btn.textContent; btn.textContent='¡Enlace copiado!'
+    setTimeout(()=>{btn.textContent=t},2000)
+  }).catch(()=>{})
+})
+})()
+</script>
+</body>
+</html>
